@@ -20,5 +20,9 @@
     "documentation"
   ],
   "author": "Quildreen \"Sorella\" Motta <quildreen@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "prelude-ls": "~0.6.0",
+    "boo": "~1.2.4"
+  }
 }
