@@ -1,0 +1,24 @@
+{
+  "name": "kalamoi",
+  "version": "0.0.0",
+  "description": "A tool for generating Papyr°-compliant documentation metadata.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/killdream/kalamoi.git"
+  },
+  "keywords": [
+    "json",
+    "papyr",
+    "papyro",
+    "documentation"
+  ],
+  "author": "Quildreen \"Sorella\" Motta <quildreen@gmail.com>",
+  "license": "MIT"
+}
