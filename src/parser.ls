@@ -62,9 +62,8 @@ boo = require 'boo'
 # Parses a single line of code, wrt the given syntax
 #
 # :: Syntax -> String -> Token
-parse-line = (syntax, line) --> 
-  console.log (syntax.test line), ':', line
-  switch syntax.test line
+parse-line = (syntax, line, index) -->
+  token = switch syntax.test line
   | \header      => syntax.parse-header line
   | \declaration => syntax.parse-declaration line
   | \meta        => syntax.parse-meta line
@@ -73,6 +72,7 @@ parse-line = (syntax, line) -->
   | \text        => syntax.parse-text line
   | \code        => syntax.parse-code line
   | otherwise    => { kind: \alien, text: line }
+  (line-no: index) <<< token
 
 
 #### λ comment-less
@@ -110,7 +110,7 @@ sanitise-re = (x) ->
 # :: Syntax -> String -> [Token]
 parse = (syntax, code) -->
   lines = code.split /\r\n|\r|\n/
-  tokens = λ.map (parse-line syntax), lines
+  tokens = lines.map (parse-line syntax)
 
 
 #### {} baseSyntax
@@ -195,7 +195,6 @@ base-syntax = {
   # :: String -> TokenType
   test: (line) ->
     t = re-test line
-    console.log sanitise-re @comment
     switch
     | t "^\\s*#{sanitise-re @comment}{2,}\\s*(=|-)+" => \header
     | t "^\\s*#{sanitise-re @comment}{2,}\\s*\\w"    => \declaration
