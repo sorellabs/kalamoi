@@ -72,7 +72,7 @@ parse-line = (syntax, line, index) -->
   | \text        => syntax.parse-text line
   | \code        => syntax.parse-code line
   | otherwise    => { kind: \alien, text: line }
-  (line-no: index) <<< token
+  (line-no: index + 1) <<< token
 
 
 #### λ comment-less
