@@ -149,7 +149,7 @@ base-syntax = {
   #
   # :: String -> Token
   parse-meta: comment-less (line) ->
-    [ _, keys, value ] = line.match /\s*:([^:]+):(.+)/
+    [ _, keys, value ] = line.match /\s*:([^:]+):(.*)/
     keys  = λ.map (.trim!), keys.split /','/
     value = value.trim! or true
     { kind: \meta, keys: keys, value: value }
