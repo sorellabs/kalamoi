@@ -140,7 +140,7 @@ base-syntax = {
   #
   # :: String -> Token
   parse-declaration: comment-less (line, depth) ->
-    [ _, type, name ] = line.match /\s*(\w+)\s*(.+)/
+    [ _, type, name ] = line.match /\s*([^\s]+)\s*(.+)/
     { kind: \declaration, type: type.to-lower-case!, text: name.trim!, depth }
 
 
@@ -197,7 +197,7 @@ base-syntax = {
     t = re-test line
     switch
     | t "^\\s*#{sanitise-re @comment}{2,}\\s*(=|-)+" => \header
-    | t "^\\s*#{sanitise-re @comment}{2,}\\s*\\w"    => \declaration
+    | t "^\\s*#{sanitise-re @comment}{2,}\\s*\\S"    => \declaration
     | t "^\\s*#{sanitise-re @comment}\\s*:[^:]+:"    => \meta
     | t "^\\s*#{sanitise-re @comment}\\s*::"         => \signature
     | t "^\\s*#{sanitise-re @comment}\\s*\\.\\."     => \signature+
