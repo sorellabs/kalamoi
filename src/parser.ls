@@ -81,8 +81,8 @@ parse-line = (syntax, line, index) -->
 # :: (String, Number -> Token) -> String -> String
 comment-less = (f, line) -->
   comment-re = new RegExp "^\\s*(#{sanitise-re @comment}*)\\s?|\\s*#*$", 'g'
-  [ _, depth ] = (line.match comment-re) or []
-  f.call this, (line.replace comment-re, ''), (depth or 0) - 1
+  [ depth ] = (line.match comment-re) or []
+  f.call this, (line.replace comment-re, ''), depth.length - 1
   
 
 #### λ re-test
