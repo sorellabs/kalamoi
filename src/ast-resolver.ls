@@ -199,6 +199,25 @@ ast-folder = λ.fold (ast, token) ->
 # :: String -> Author
 parse-author = (x) -> x
 
+# Returns a prefix for a kind of Entities
+# :: Entity -> String
+kind-prefix = (entity) -> switch entity.kind
+  | \type     => 't:'
+  | \class    => 'c:'
+  | \group    => 'g:'
+  | otherwise => ''  
+
+# Returns a sane ID representation for an Entity
+# :: Entity -> String
+sanitised-id-for = (entity) ->
+  "#{kind-prefix entity}#{entity.name.trim!.replace /\s+/g, '-'}"
+
+# Joins two different ID parts
+# :: Maybe String -> String -> String
+join-id = (x, y) -->
+  | x => "#x/#y"
+  | _ => y
+
 # Represents an Entity
 # :: Base <| Entity
 Entity = boo.Base.derive {
@@ -223,6 +242,10 @@ Entity = boo.Base.derive {
     @authors    = x.authors
     @licence    = x.licence
 
+  make-id: ->
+    | @id => @id
+    | _   => @id = join-id @parent?make-id!, (sanitised-id-for this)
+
   add: (child) ->
     @children.push child
     child.parent = this
@@ -237,14 +260,14 @@ Entity = boo.Base.derive {
     | otherwise   => @meta[meta.key] = meta.value
 
   to-json: ->
-    { id         : @id
+    { id         : @make-id!
     , name       : @name
     , kind       : @kind
     , signatures : @signatures
     , text       : @text
     , code       : @code
     , meta       : @meta
-    , parent     : @parent?id
+    , parent     : @parent?make-id!
     , language   : @language
     , file       : @file
     , copyright  : @copyright
