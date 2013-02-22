@@ -32,7 +32,7 @@ boo = require 'boo'
 # type ASTState
 # :: { "context" -> Entity
 # .. , "contextStack" -> [Entity]
-# .. , "ast" -> [Entity]
+# .. , "entities" -> [Entity]
 # .. }
 
 # Constructs an error from a Error function, name and message
@@ -88,7 +88,7 @@ declaration-map =
 make-ast-state = (tokens) ->
   context: null
   context-stack: []
-  ast: tokens or []
+  entities: tokens or []
 
 # Pushes a context into the stack
 # :: ASTState* -> Entity -> ASTState*
@@ -119,6 +119,7 @@ save-entity = (ast, entity) -->
 make-entity = (ast, depth) -->
   entity = Entity.make { depth }
   save-entity ast, entity
+  ast.entities.push entity
   entity
 
 # Creates a new header entity and saves it
@@ -179,9 +180,7 @@ push-code = assert-context (ast, token) -->
 
 # Folds tokens into a full AST.
 # :: [Token] -> ASTState
-resolve-ast = (xs) -> 
-  console.log xs
-  ast-folder (make-ast-state []), xs
+resolve-ast = (xs) -> ast-folder (make-ast-state []), xs
   
 # A folder for AST resolution
 # :: ASTState -> [Token] -> ASTState
