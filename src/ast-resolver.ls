@@ -244,7 +244,7 @@ Entity = boo.Base.derive {
 
   make-id: ->
     | @id => @id
-    | _   => @id = join-id @parent?make-id!, (sanitised-id-for this)
+    | _   => join-id @parent?make-id!, (sanitised-id-for this)
 
   add: (child) ->
     @children.push child
