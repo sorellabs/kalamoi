@@ -1,0 +1,122 @@
+#!/usr/bin/env node
+(function(){
+  var doc, fs, path, print, glob, pkgMeta, docopt, parse, read, readAsJson, write, expandFile, expandFiles, loadFile, loadPackage, buildEntityMap, foldEntity, resolveEntityMembership, buildDocMeta, printHelp, args;
+  doc = 'Kalamoi — CLI tool for generating JSON documentation metadata.\n\nUsage:\n  kalamoi generate <json>\n  kalamoi -h | --help\n  kalamoi --version\n\nOptions:\n  -h, --help              Displays this screen and exits.\n  -v, --version           Displays the version and exits.';
+  fs = require('fs');
+  path = require('path');
+  print = require('util').print;
+  glob = require('glob');
+  pkgMeta = require('../package');
+  docopt = require('docopt').docopt;
+  parse = require('../').parse;
+  import$(global, require('prelude-ls'));
+  read = function(pathname){
+    return fs.readFileSync(pathname, 'utf-8');
+  };
+  readAsJson = function(pathname){
+    return JSON.parse(read(pathname));
+  };
+  write = curry$(function(pathname, contents){
+    return fs.writeFileSync(pathname, contents, 'utf-8');
+  });
+  expandFile = function(pattern){
+    return glob.sync(pattern);
+  };
+  expandFiles = concatMap(expandFile);
+  loadFile = function(pathname){
+    return parse(path.extname(pathname), {
+      file: pathname
+    }, read(pathname));
+  };
+  loadPackage = function(pkg){
+    var entities;
+    entities = concatMap(loadFile, expandFiles(pkg.files));
+    return {
+      prefix: pkg.prefix,
+      parent: pkg.parent,
+      parentless: entities.filter(function(it){
+        return it.parent === null;
+      }),
+      entities: entities
+    };
+  };
+  buildEntityMap = function(packages){
+    var m;
+    m = {};
+    each(function(pkg){
+      return fold(foldEntity(pkg.prefix), m, pkg.entities);
+    })(
+    packages);
+    return m;
+  };
+  foldEntity = curry$(function(prefix, map, entity){
+    map[prefix + "" + entity.makeId()] = entity;
+    return map;
+  });
+  resolveEntityMembership = curry$(function(entityMap, packages){
+    return each(function(pkg){
+      var parent;
+      if (pkg.parent) {
+        parent = entityMap[pkg.parent];
+        return each(function(it){
+          return it.parent = parent;
+        }, pkg.parentless);
+      }
+    })(
+    packages);
+  });
+  buildDocMeta = function(config){
+    var project, packages, entityMap, entities;
+    project = readAsJson(config);
+    packages = map(loadPackage, project.packages);
+    entityMap = buildEntityMap(packages);
+    resolveEntityMembership(entityMap, packages);
+    entities = concatMap(function(it){
+      return it.entities;
+    }, packages);
+    return print(map(compose$([
+      JSON.stringify, function(it){
+        return it.toJson();
+      }
+    ]), entities));
+  };
+  printHelp = function(){
+    console.log(doc);
+    return process.exit(0);
+  };
+  args = docopt(doc, {
+    version: pkgMeta.version
+  });
+  switch (false) {
+  case !args.generate:
+    buildDocMeta(args['<json>']);
+    break;
+  default:
+    printHelp();
+  }
+  function import$(obj, src){
+    var own = {}.hasOwnProperty;
+    for (var key in src) if (own.call(src, key)) obj[key] = src[key];
+    return obj;
+  }
+  function curry$(f, bound){
+    var context,
+    _curry = function(args) {
+      return f.length > 1 ? function(){
+        var params = args ? args.concat() : [];
+        context = bound ? context || this : this;
+        return params.push.apply(params, arguments) <
+            f.length && arguments.length ?
+          _curry.call(context, params) : f.apply(context, params);
+      } : f;
+    };
+    return _curry();
+  }
+  function compose$(fs){
+    return function(){
+      var i, args = arguments;
+      for (i = fs.length; i > 0; --i) { args = [fs[i-1].apply(this, args)]; }
+      return args[0];
+    };
+  }
+}).call(this);
