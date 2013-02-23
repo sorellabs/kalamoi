@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "A tool for generating Papyr°-compliant documentation metadata.",
   "main": "index.js",
-  "bin": "./bin/kalamoi"
+  "bin": "./bin/kalamoi",
   "directories": {
     "doc": "docs"
   },
