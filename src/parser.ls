@@ -205,7 +205,10 @@ base-syntax = {
     | otherwise                                      => \code
 }
   
+c-syntax = boo.derive base-syntax, {
+  comment: '//'
+}
 
 
 ### -- Exports ---------------------------------------------------------
-module.exports = { parse, base-syntax }
+module.exports = { parse, base-syntax, c-syntax }
